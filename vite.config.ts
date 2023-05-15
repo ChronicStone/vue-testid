@@ -23,7 +23,7 @@ const fileName = {
 
 const formats = Object.keys(fileName) as Array<keyof typeof fileName>;
 
-module.exports = defineConfig({
+export default defineConfig({
   base: "./",
   build: {
     lib: {
