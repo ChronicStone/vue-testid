@@ -1,61 +1,152 @@
-# vite-vanilla-ts-lib-starter
+# Vue TestID Directive
 
-The starter is built on top of Vite 4.x and prepared for writing libraries in TypeScript. It generates a hybrid package - both support for CommonJS and ESM modules.
+A Vue directive for easily setting `data-testid` attributes in complex nested DOM structures. This library supports advanced selectors, multiple elements, and iterator-based setting.
 
-## Features
-
-- Hybrid support - CommonJS and ESM modules
-- IIFE bundle for direct browser support without bundler
-- Typings bundle
-- ESLint - scripts linter
-- Stylelint - styles linter
-- Prettier - formatter
-- Vitest - test framework
-- Husky + lint-staged - pre-commit git hook set up for formatting
-
-## GitHub Template
-
-This is a template repo. Click the green [Use this template](https://github.com/kbysiec/vite-vanilla-ts-lib-starter/generate) button to get started.
-
-## Clone to local
-
-If you prefer to do it manually with the cleaner git history
+## Installation
 
 ```bash
-git clone https://github.com/kbysiec/vite-vanilla-ts-lib-starter.git
-cd vite-vanilla-ts-lib-starter
-npm i
+npm install @chronicstone/vue-testid
 ```
-
-## Checklist
-
-When you use this template, update the following:
-
-- Remove `.git` directory and run `git init` to clean up the history
-- Change the name in `package.json` - it will be the name of the IIFE bundle global variable and bundle files name (`.cjs`, `.mjs`, `.iife.js`, `d.ts`)
-- Change the author name in `LICENSE`
-- Clean up the `README` and `CHANGELOG` files
-
-And, enjoy :)
 
 ## Usage
 
-The starter contains the following scripts:
+Import and use the directive in components, or install it globally. Then, use it on any element to control its testId.
 
-- `dev` - starts dev server
-- `build` - generates the following bundles: CommonJS (`.cjs`) ESM (`.mjs`) and IIFE (`.iife.js`). The name of bundle is automatically taken from `package.json` name property
-- `test` - starts vitest and runs all tests
-- `test:coverage` - starts vitest and run all tests with code coverage report
-- `lint:scripts` - lint `.ts` files with eslint
-- `lint:styles` - lint `.css` and `.scss` files with stylelint
-- `format:scripts` - format `.ts`, `.html` and `.json` files with prettier
-- `format:styles` - format `.cs` and `.scss` files with stylelint
-- `format` - format all with prettier and stylelint
-- `prepare` - script for setting up husky pre-commit hook
-- `uninstall-husky` - script for removing husky from repository
+```vue
+<script setup lang="ts">
+import { vTestid } from '@chronicstone/vue-testid'
+</script>
 
-## Acknowledgment
+<template>
+  <div v-testid="some-test-id">
+    ...
+  </div>
+</template>
+```
 
-If you found it useful somehow, I would be grateful if you could leave a star in the project's GitHub repository.
+## Examples
 
-Thank you.
+### Basic Usage
+
+Set a simple `data-testid` on the element:
+
+```vue
+<template>
+  <div v-testid="'my-element'">Content</div>
+</template>
+```
+
+Result:
+```html
+<div data-testid="my-element">Content</div>
+```
+
+### Targeting a Child Element
+
+Set `data-testid` on a child element using a selector:
+
+```vue
+<template>
+  <div v-testid="{ value: 'child-button', selector: 'button' }">
+    <button>Click me</button>
+  </div>
+</template>
+```
+
+Result:
+```html
+<div>
+  <button data-testid="child-button">Click me</button>
+</div>
+```
+
+### Multiple Elements
+
+Set `data-testid` on multiple elements using an array:
+
+```vue
+<template>
+  <div v-testid="[
+    'parent-div',
+    { value: 'first-paragraph', selector: 'p:first-child' },
+    { value: 'second-paragraph', selector: 'p:last-child' }
+  ]">
+    <p>First paragraph</p>
+    <p>Second paragraph</p>
+  </div>
+</template>
+```
+
+Result:
+```html
+<div data-testid="parent-div">
+  <p data-testid="first-paragraph">First paragraph</p>
+  <p data-testid="second-paragraph">Second paragraph</p>
+</div>
+```
+
+### Dynamic Multiple Elements
+
+Set `data-testid` on multiple elements with dynamic values:
+
+```vue
+<template>
+  <ul v-testid="{
+    multiple: true,
+    selector: 'li',
+    value: (index) => `list-item-${index + 1}`
+  }">
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+</template>
+```
+
+Result:
+```html
+<ul>
+  <li data-testid="list-item-1">Item 1</li>
+  <li data-testid="list-item-2">Item 2</li>
+  <li data-testid="list-item-3">Item 3</li>
+</ul>
+```
+
+### Targeting Parent Scope
+
+Set `data-testid` on elements outside the current component:
+
+```vue
+<template>
+  <div v-testid="{
+    value: 'external-element',
+    selector: '#external-div',
+    parentScope: true
+  }">
+    Internal content
+  </div>
+</template>
+```
+
+This will set the `data-testid` on an element with id `external-div` that exists outside the current component's scope.
+
+## API
+
+The `v-testid` directive accepts the following types:
+
+1. `string`: Simple test ID
+2. `Object`:
+   - `value: string`: The test ID to set
+   - `selector: string`: CSS selector for the target element
+   - `parentScope?: boolean`: Whether to search in the parent scope (document)
+3. `Object` for multiple elements:
+   - `multiple: true`
+   - `value: (index: number) => string`: Function to generate test IDs
+   - `selector: string`: CSS selector for target elements
+   - `parentScope?: boolean`: Whether to search in the parent scope
+4. `Array` of any combination of the above types
+
+## License
+
+MIT
+```
